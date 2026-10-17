@@ -50,3 +50,10 @@ footer{margin-top:36px}
 .hero{grid-template-columns:1fr 1fr}
 .hero-art img{width:100%;height:auto;border-radius:20px;display:block}
 @media (max-width:620px){.hero{grid-template-columns:1fr}.hero-art{order:-1}}
+
+/* ===== بحث الدول وزر المطور ===== */
+#ccq{margin-bottom:8px}
+select{width:50%}
+.devbox{margin-top:22px;padding:16px;border-radius:20px;background:var(--card);border:1px solid var(--line);color:var(--ink)}
+.devbox p{margin:0 0 4px;font-weight:700}
+#dev::before{content:"💬 "}
