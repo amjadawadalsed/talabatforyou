@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>رابط واتساب للمطاعم + QR للطلبات والحجز</title>
+<meta name="description" content="أنشئ رابط واتساب وكود QR لمطعمك ليطلب الزبائن ويحجزوا بضغطة. رسائل جاهزة للطلب والتوصيل وحجز الطاولات. مجاني.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="رابط واتساب للمطاعم + QR للطلبات والحجز">
+<meta property="og:description" content="رسائل جاهزة للمتاجر والمطاعم والعيادات والشباب. أنشئ رابط واتساب وكود QR مجاناً.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#eef5f1; --card:#ffffff; --ink:#10231b; --muted:#56695f; --line:#d4e2da;
+  --brand:#0f8a5a; --brand-ink:#ffffff; --bubble:#d9fdd3; --sun:#ffc233; --sun-ink:#3a2a00;
+  --chip:#e1eee7;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0c1713; --card:#14241d; --ink:#e8f3ed; --muted:#9db3a8; --line:#25382f;
+    --brand:#2ec58a; --brand-ink:#05261a; --bubble:#1f5c43; --sun:#ffc233; --sun-ink:#3a2a00;
+    --chip:#1b2f26;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0c1713; --card:#14241d; --ink:#e8f3ed; --muted:#9db3a8; --line:#25382f;
+  --brand:#2ec58a; --brand-ink:#05261a; --bubble:#1f5c43; --sun:#ffc233; --sun-ink:#3a2a00;
+  --chip:#1b2f26;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Tajawal",system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;line-height:1.7;font-size:16px}
+.wrap{max-width:720px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:clamp(28px,7vw,40px);line-height:1.25;margin:8px 0 10px;font-weight:800}
+h2{font-size:20px;margin:0 0 4px;font-weight:700}
+.lead{color:var(--muted);margin:0 0 20px;max-width:46ch}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding:4px 0 10px;margin:0 -16px;padding-inline:16px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:none;border:0;background:var(--chip);color:var(--ink);font:inherit;font-weight:500;padding:9px 16px;border-radius:999px;cursor:pointer;min-height:44px}
+.tab[aria-selected="true"]{background:var(--brand);color:var(--brand-ink);font-weight:700}
+.tab:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,a:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.msgs{display:grid;gap:10px;margin-top:6px}
+.msg{width:100%;text-align:start;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;padding:12px 14px;border-radius:4px 18px 18px 18px;cursor:pointer;display:block}
+.msg:hover{border-color:var(--brand)}
+.msg[aria-pressed="true"]{background:var(--bubble);border-color:var(--brand)}
+.msg small{display:block;color:var(--muted);font-size:13px;margin-top:2px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;margin-top:26px}
+label{display:block;font-weight:700;margin:14px 0 6px}
+.row{display:flex;gap:8px}
+select,input,textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:11px 12px;width:100%;min-height:46px}
+select{width:42%;flex:none}
+textarea{min-height:110px;resize:vertical}
+.btn{font:inherit;font-weight:800;border:0;border-radius:14px;padding:13px 18px;cursor:pointer;min-height:48px}
+.primary{background:var(--brand);color:var(--brand-ink);width:100%;margin-top:16px;font-size:17px}
+.alt{background:var(--sun);color:var(--sun-ink)}
+.ghost{background:var(--chip);color:var(--ink)}
+.err{color:#c2362b;font-weight:500;margin:8px 0 0;min-height:1.4em}
+.preview{background:var(--bubble);border-radius:4px 16px 16px 16px;padding:10px 14px;margin-top:12px;white-space:pre-wrap;word-break:break-word;min-height:44px}
+#result{display:none;margin-top:18px;border-top:1px dashed var(--line);padding-top:18px}
+#result.on{display:block}
+.link{direction:ltr;text-align:left;font-size:14px;word-break:break-all;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.actions .btn{flex:1 1 130px;text-align:center;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+.qr{display:flex;flex-direction:column;align-items:center;margin-top:18px;gap:8px}
+#qr{background:#fff;padding:12px;border-radius:14px;line-height:0}
+#qr img,#qr canvas{max-width:100%;height:auto}
+.hint{color:var(--muted);font-size:14px;text-align:center;margin:0}
+footer{color:var(--muted);font-size:14px;text-align:center;margin-top:32px}
+.brand{font-weight:800;color:var(--brand);font-size:18px}
+.sharesite{margin-top:12px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+.sectors{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:18px}.sectors a{background:var(--chip);color:var(--ink);padding:9px 16px;border-radius:999px;text-decoration:none;min-height:44px;display:inline-flex;align-items:center}.colors{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;align-items:center}.colors label{margin:0;display:flex;align-items:center;gap:6px;font-weight:500}.colors input{width:48px;min-height:40px;padding:2px}.qr .actions{width:100%}</style>
+<link rel="stylesheet" href="style.css">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "هل الموقع مجاني؟", "acceptedAnswer": {"@type": "Answer", "text": "نعم، إنشاء الرابط والـ QR مجاني بالكامل."}}, {"@type": "Question", "name": "هل يحفظ الموقع رقمي ورسائلي؟", "acceptedAnswer": {"@type": "Answer", "text": "الرابط العادي والـ QR يُنشآن داخل جهازك. أما الرابط القصير فيُحفظ في قاعدة بيانات ليعمل ويحصي النقرات."}}, {"@type": "Question", "name": "كيف أطبع الـ QR بجودة جيدة؟", "acceptedAnswer": {"@type": "Answer", "text": "حمّل SVG للطباعة الكبيرة أو PNG للاستخدام العادي."}}, {"@type": "Question", "name": "هل يعمل مع أرقام خارج السودان؟", "acceptedAnswer": {"@type": "Answer", "text": "نعم، اختر رمز دولتك من القائمة."}}]}</script>
+</head>
+<body>
+<div class="wrap">
+  <header class="topbar"><a class="logo" href="index.html" aria-label="الصفحة الرئيسية"><svg viewBox="0 0 42 42" aria-hidden="true"><rect width="42" height="42" rx="12" fill="#12805c"/><path d="M10 11h22a4 4 0 0 1 4 4v11a4 4 0 0 1-4 4H21l-7 6v-6h-4a4 4 0 0 1-4-4V15a4 4 0 0 1 4-4z" fill="#fff"/><rect x="15" y="16" width="5" height="5" rx="1" fill="#12805c"/><rect x="22" y="16" width="5" height="5" rx="1" fill="#12805c"/><rect x="15" y="23" width="5" height="3" rx="1" fill="#12805c"/><rect x="24" y="23" width="3" height="3" rx="1" fill="#ffb824"/></svg><span class="brand" id="brand"></span></a><a class="topbtn" href="#how">كيف يعمل؟</a></header>
+  <section class="hero"><div class="hero-t"><h1>رابط واتساب لمطعمك: طلبات وحجوزات بضغطة</h1><p class="lead">اطبع الـ QR على الطاولات وعلبة الطلبات، وضع الرابط في إنستجرام وفيسبوك، ويصلك الطلب جاهزاً على واتساب.</p><div class="cta"><a class="btn alt" href="#pick">ابدأ الآن، مجاناً</a><a class="btn outline" href="#how">كيف يعمل؟</a></div></div><div class="hero-art" aria-hidden="true"><svg viewBox="0 0 220 270"><rect x="12" y="6" width="196" height="258" rx="30" fill="#f6faf7"/><rect x="12" y="6" width="196" height="46" rx="30" fill="#12805c"/><rect x="12" y="30" width="196" height="22" fill="#12805c"/><circle cx="40" cy="30" r="10" fill="#fff"/><rect x="56" y="24" width="64" height="8" rx="4" fill="#fff"/><g class="b b1"><rect x="26" y="66" width="120" height="34" rx="12" fill="#fff" stroke="#d4e2da"/><rect x="36" y="76" width="90" height="6" rx="3" fill="#9bb2a6"/><rect x="36" y="87" width="56" height="6" rx="3" fill="#c3d3ca"/></g><g class="b b2"><rect x="74" y="110" width="124" height="34" rx="12" fill="#d6f5d0"/><rect x="84" y="120" width="96" height="6" rx="3" fill="#12805c"/><rect x="84" y="131" width="60" height="6" rx="3" fill="#6bbf98"/></g><g class="b b3"><rect x="26" y="154" width="100" height="26" rx="12" fill="#fff" stroke="#d4e2da"/><rect x="36" y="164" width="70" height="6" rx="3" fill="#9bb2a6"/></g><g class="b b4"><rect x="60" y="192" width="100" height="62" rx="12" fill="#fff" stroke="#12805c" stroke-width="2"/><rect x="70" y="202" width="16" height="16" rx="3" fill="#0a3b2c"/><rect x="74" y="206" width="8" height="8" fill="#fff"/><rect x="134" y="202" width="16" height="16" rx="3" fill="#0a3b2c"/><rect x="138" y="206" width="8" height="8" fill="#fff"/><rect x="70" y="228" width="16" height="16" rx="3" fill="#0a3b2c"/><rect x="74" y="232" width="8" height="8" fill="#fff"/><rect x="96" y="204" width="8" height="8" fill="#0a3b2c"/><rect x="108" y="212" width="8" height="8" fill="#0a3b2c"/><rect x="96" y="224" width="8" height="8" fill="#ffb824"/><rect x="118" y="228" width="8" height="8" fill="#0a3b2c"/><rect x="134" y="236" width="16" height="8" fill="#0a3b2c"/></g></svg></div></section>
+
+  <div class="how" id="how"><div><b>١. اختر رسالة</b><span>عشرات الرسائل الجاهزة للأعمال والأصدقاء والمناسبات، وتستطيع تعديلها.</span></div><div><b>٢. اكتب رقمك</b><span>بدون رموز، والموقع يضبط رمز الدولة بنفسه.</span></div><div><b>٣. خذ الرابط والـ QR</b><span>انسخ الرابط أو حمّل الكود، وانشره في أي مكان.</span></div></div>
+  <h2 id="pick">1. اختر رسالة جاهزة</h2>
+  <div class="tabs" role="tablist" id="tabs"></div>
+  <div class="msgs" id="msgs"></div>
+
+  <section class="panel" id="form">
+    <h2>2. أدخل رقمك</h2>
+    <label for="num">رقم واتساب</label>
+    <div class="row">
+      <select id="cc" aria-label="رمز الدولة">
+        <option value="249">السودان +249</option>
+        <option value="966">السعودية +966</option>
+        <option value="20">مصر +20</option>
+        <option value="971">الإمارات +971</option>
+        <option value="974">قطر +974</option>
+        <option value="965">الكويت +965</option>
+        <option value="968">عمان +968</option>
+        <option value="962">الأردن +962</option>
+        <option value="218">ليبيا +218</option>
+        <option value="251">إثيوبيا +251</option>
+        <option value="44">بريطانيا +44</option>
+        <option value="1">أمريكا وكندا +1</option>
+      </select>
+      <input id="num" type="tel" inputmode="tel" placeholder="مثال: 0912345678" autocomplete="off">
+    </div>
+    <label for="bname">اسم نشاطك (اختياري، يُضاف للرسائل)</label>
+    <input id="bname" type="text" placeholder="مثال: مطعم النيل" autocomplete="off">
+    <label for="text">الرسالة (يمكنك تعديلها)</label>
+    <textarea id="text" placeholder="اختر رسالة من الأعلى أو اكتب رسالتك"></textarea>
+    <div class="preview" id="pv" aria-live="polite">هكذا ستظهر الرسالة عند من يفتح الرابط</div>
+    <p class="err" id="err" role="alert"></p>
+    <button class="btn primary" id="go" type="button">إنشاء الرابط وQR</button>
+
+    <div id="result">
+      <div class="link" id="link"></div>
+      <div class="actions"><input id="ccode" type="text" dir="ltr" placeholder="اسم مخصص اختياري مثل nile-rest" autocomplete="off" style="flex:2 1 190px"><button class="btn alt" id="short" type="button">رابط قصير + تتبع</button></div>
+      <p class="err" id="serr" role="alert"></p>
+      <div id="shortbox" style="display:none"><div class="link" id="slink"></div><div class="actions"><button class="btn ghost" id="scopy" type="button">نسخ القصير</button><a class="btn ghost" id="sstats" href="#" target="_blank" rel="noopener">صفحة الإحصائيات</a></div><p class="hint">احفظ رابط الإحصائيات، فهو الوحيد الذي يفتح أرقام نقراتك.</p></div>
+      <div class="actions">
+        <button class="btn alt" id="copy" type="button">نسخ الرابط</button>
+        <a class="btn ghost" id="open" href="#" target="_blank" rel="noopener">فتح في واتساب</a>
+        <button class="btn ghost" id="share" type="button">مشاركة الرابط</button>
+      </div>
+      <div class="qr">
+        <div id="qr"></div>
+        <div class="colors"><label>لون الكود <input type="color" id="fg" value="#000000"></label><label>الخلفية <input type="color" id="bg" value="#ffffff"></label></div>
+        <p class="err" id="cerr" role="alert"></p>
+        <div class="actions"><button class="btn alt" id="dlpng" type="button">تحميل PNG</button><button class="btn ghost" id="dlsvg" type="button">تحميل SVG</button></div>
+        <p class="hint" id="qrbrand"></p>
+        <p class="hint">اضغط مطولاً على الكود لحفظه كصورة، أو التقط لقطة شاشة.</p>
+      </div>
+    </div>
+  </section>
+  <h2>كيف تستفيد من الموقع؟</h2>
+  <div class="aud"><section><h3>إذا كنت تاجراً أو صاحب نشاط</h3><ul><li>اكتب اسم نشاطك ليظهر في الرسالة.</li><li>ضع الرابط في بايو إنستجرام وإعلانات فيسبوك ليصلك الزبون برسالة جاهزة.</li><li>حمّل الـ QR واطبعه على الطاولات أو الواجهة أو الفواتير.</li><li>أنشئ رابطاً قصيراً لتعرف كم شخصاً ضغط عليه.</li></ul></section><section><h3>إذا كنت مستخدماً عادياً</h3><ul><li>راسل أي رقم بدون حفظه في جهازك.</li><li>اختر رسالة كوميدية أو رسالة محبة وأرسلها لمن تحب.</li><li>اكتب رسالتك بنفسك وشارك الرابط مع أصدقائك.</li></ul></section></div>
+  <h2>أسئلة شائعة</h2>
+  <details><summary>هل الموقع مجاني؟</summary><p>نعم، إنشاء الرابط والـ QR مجاني بالكامل.</p></details>
+  <details><summary>هل يحفظ الموقع رقمي ورسائلي؟</summary><p>الرابط العادي والـ QR يُنشآن داخل جهازك ولا يُرسلان لأي مكان. أما الرابط القصير فيُحفظ في قاعدة بيانات ليعمل ويحصي النقرات.</p></details>
+  <details><summary>كيف أطبع الـ QR بجودة جيدة؟</summary><p>اضغط تحميل SVG للطباعة الكبيرة، أو PNG للاستخدام العادي.</p></details>
+  <details><summary>الـ QR لا يُمسح، لماذا؟</summary><p>غالباً لأن لون الكود قريب من لون الخلفية. اجعل الكود غامقاً والخلفية فاتحة.</p></details>
+  <details><summary>هل يعمل مع أرقام خارج السودان؟</summary><p>نعم، اختر رمز دولتك من القائمة.</p></details>
+  <footer>أداة مجانية لأصحاب المتاجر والمطاعم والعيادات وكل من يريد محادثة أسرع.<br><button class="btn alt sharesite" id="sharesite" type="button">أخبر أصدقاءك عن الموقع</button><nav class="sectors"><a href="index.html">الرئيسية</a><a href="restaurants.html">للمطاعم</a><a href="clinics.html">للعيادات</a><a href="shops.html">للمتاجر</a></nav></footer>
+</div>
+
+<script src="config.js"></script>
+<script>
+var DATA = [
+ {n:"للمطاعم", m:[["طلب توصيل", "مرحباً {الاسم}، أريد طلب توصيل. هل يمكن إرسال قائمة الطعام وأسعارها؟"], ["حجز طاولة", "السلام عليكم {الاسم}، أريد حجز طاولة لـ 4 أشخاص الليلة. هل هناك مكان؟"], ["عروض اليوم", "مرحباً {الاسم}، هل عندكم عروض أو وجبة اليوم؟"], ["مناسبة", "السلام عليكم {الاسم}، أحتاج وجبات لمناسبة (عزومة). هل يمكنكم تزويدي بالأسعار؟"], ["منطقة التوصيل", "هل خدمة التوصيل متاحة لمنطقتي؟ وكم تكلفتها؟"], ["ملاحظة", "مرحباً {الاسم}، لدي ملاحظة على طلبي الأخير وأتمنى التواصل معي."]]},
+ {n:"أصحاب الأعمال", m:[
+  ["متجر","السلام عليكم {الاسم}، أريد الاستفسار عن المنتج المعروض عندكم. هل هو متوفر؟"],
+  ["مطعم","مرحباً {الاسم}، أريد طلب وجبة. ما هي قائمة اليوم وأسعارها؟"],
+  ["عيادة","السلام عليكم {الاسم}، أريد حجز موعد. ما هي المواعيد المتاحة هذا الأسبوع؟"],
+  ["خدمات","مرحباً {الاسم}، أحتاج إلى عرض سعر لخدمتكم. هل يمكن التواصل معي؟"],
+  ["تعليم ودروس","السلام عليكم {الاسم}، أريد التسجيل في الدورة. كيف أبدأ؟"],
+  ["عقارات وسيارات","مرحباً {الاسم}، رأيت إعلانكم وأريد معرفة التفاصيل وموعد المعاينة."]
+ ]},
+ {n:"للشباب", m:[
+  ["أصحاب","هلا يا زول، فينك؟ نلتقي اليوم؟"],
+  ["دعوة","في طلعة الليلة، تجي معانا؟"],
+  ["عمل مشترك","عندي فكرة مشروع ونحتاج واحد زيك معانا. ممكن نتكلم؟"],
+  ["تعارف","مرحباً، أنا من متابعيك وأحببت أن نتعرف أكثر."],
+  ["مساعدة","محتاج مساعدة بسيطة منك، لو عندك وقت كلمني."]
+ ]},
+ {n:"كوميدية", m:[
+  ["اعتذار","اعتذر لأن ردي تأخر، كنت مشغولاً بالتفكير في الرد المناسب."],
+  ["طلب سلفة","بما أنك أكرم الناس، هل تسمح لي أن أتحقق من ذلك بسلفة صغيرة؟"],
+  ["تذكير","هذه رسالة تذكير لطيفة قبل أن تصبح غير لطيفة."],
+  ["صباح","صباح الخير، القهوة جاهزة وأنت الوحيد الذي ينقصه."],
+  ["إهمال","هل أنت بخير؟ لأن واتساب أخبرني أنك رأيت رسالتي ولم ترد."]
+ ]},
+ {n:"محبة وتواصل", m:[
+  ["اشتياق","اشتقت لك كثيراً، أتمنى أن تكون بخير."],
+  ["شكر","شكراً لك على وقوفك معي، وجودك فرق كبير."],
+  ["اعتذار صادق","أعتذر إن أخطأت في حقك، وقيمتك عندي أكبر من أي خلاف."],
+  ["لقاء","من زمان لم نلتقِ، متى يناسبك أن نجلس معاً؟"],
+  ["دعاء","الله يحفظك ويسعد أيامك، أحببت فقط أن أطمئن عليك."]
+ ]},
+ {n:"مناسبات", m:[
+  ["رمضان","رمضان كريم، كل عام وأنت بخير وصحة وسعادة."],
+  ["العيد","عيدك مبارك، تقبل الله منا ومنكم صالح الأعمال."],
+  ["تهنئة","ألف مبروك، فرحت لك من قلبي وأتمنى لك دوام التوفيق."],
+  ["عزاء","عظم الله أجركم وأحسن عزاءكم، وإنا لله وإنا إليه راجعون."],
+  ["عيد ميلاد","كل عام وأنت بخير، أدام الله عليك الفرح والصحة."]
+ ]}
+];
+var cur = 0, picked = -1, tpl = null, qrobj = null;
+function fill(t){var n=$("bname").value.trim();return n?t.replace(/\{الاسم\}/g,n):t.replace(/\s*\{الاسم\}/g,"")}
+function applyTpl(){if(tpl!==null){$("text").value=fill(tpl);updatePv()}}
+var $ = function(id){return document.getElementById(id)};
+function renderTabs(){
+  var t=$("tabs"); t.innerHTML="";
+  DATA.forEach(function(c,i){
+    var b=document.createElement("button");
+    b.className="tab"; b.type="button"; b.setAttribute("role","tab");
+    b.setAttribute("aria-selected", i===cur?"true":"false");
+    b.textContent=c.n;
+    b.onclick=function(){cur=i;picked=-1;renderTabs();renderMsgs()};
+    t.appendChild(b);
+  });
+}
+function renderMsgs(){
+  var box=$("msgs"); box.innerHTML="";
+  DATA[cur].m.forEach(function(x,i){
+    var b=document.createElement("button");
+    b.className="msg"; b.type="button";
+    b.setAttribute("aria-pressed", i===picked?"true":"false");
+    b.textContent=fill(x[1]);
+    var s=document.createElement("small"); s.textContent=x[0]; b.appendChild(s);
+    b.onclick=function(){
+      picked=i; tpl=x[1]; applyTpl(); renderMsgs();
+      $("form").scrollIntoView({behavior:"smooth",block:"start"});
+    };
+    box.appendChild(b);
+  });
+}
+function updatePv(){
+  var v=$("text").value.trim();
+  $("pv").textContent = v || "هكذا ستظهر الرسالة عند من يفتح الرابط";
+}
+function cleanNumber(){
+  var cc=$("cc").value, d=$("num").value.replace(/[٠-٩]/g,function(c){return String(c.charCodeAt(0)-1632)}).replace(/\D/g,"");
+  if(!d) return "";
+  if(d.indexOf("00")===0) d=d.slice(2);
+  else if(d.charAt(0)==="0") d=cc+d.replace(/^0+/,"");
+  else if(d.indexOf(cc)!==0 && d.length<=10) d=cc+d;
+  return d;
+}
+function build(){
+  var n=cleanNumber(), err=$("err");
+  if(n.length<8||n.length>15){err.textContent="الرقم غير صحيح. اكتب رقمك كاملاً بدون رموز، مثل 0912345678.";$("result").classList.remove("on");return}
+  err.textContent="";
+  var txt=$("text").value.trim();
+  var url="https://wa.me/"+n+(txt?"?text="+encodeURIComponent(txt):"");
+  $("link").textContent=url;
+  $("open").href=url;
+  var q=$("qr"); q.innerHTML="";
+  checkContrast();
+  try{ qrobj=new QRCode(q,{text:url,width:230,height:230,colorDark:$("fg").value,colorLight:$("bg").value,correctLevel:QRCode.CorrectLevel.M}); q.style.background=$("bg").value; }
+  catch(e){ q.textContent="تعذّر إنشاء الكود، حاول مرة أخرى."; }
+  $("result").classList.add("on"); $("shortbox").style.display="none"; save();
+  $("result").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+function lum(h){var r=parseInt(h.slice(1,3),16)/255,g=parseInt(h.slice(3,5),16)/255,b=parseInt(h.slice(5,7),16)/255;function f(c){return c<=0.03928?c/12.92:Math.pow((c+0.055)/1.055,2.4)}return 0.2126*f(r)+0.7152*f(g)+0.0722*f(b)}
+function checkContrast(){var a=lum($("fg").value),b=lum($("bg").value),hi=Math.max(a,b),lo=Math.min(a,b),ratio=(hi+0.05)/(lo+0.05);
+  $("cerr").textContent=(a>=b||ratio<3)?"تنبيه: اجعل لون الكود أغمق بوضوح من الخلفية، وإلا قد لا يُمسح الكود.":""}
+function regen(){if($("result").classList.contains("on"))build()}
+function dl(blob,name){try{var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},1500)}catch(e){$("cerr").textContent="تعذّر التحميل هنا. اضغط مطولاً على الكود لحفظه."}}
+function modules(){var m=qrobj&&qrobj._oQRCode;if(!m)return null;var n=m.getModuleCount(),d=[];for(var r=0;r<n;r++)for(var c=0;c<n;c++)if(m.isDark(r,c))d.push([r,c]);return {n:n,d:d}}
+function dlPng(){var q=modules();if(!q)return;var qz=4,k=12,s=(q.n+qz*2)*k,cv=document.createElement("canvas");cv.width=cv.height=s;var x=cv.getContext("2d");x.fillStyle=$("bg").value;x.fillRect(0,0,s,s);x.fillStyle=$("fg").value;q.d.forEach(function(p){x.fillRect((p[1]+qz)*k,(p[0]+qz)*k,k,k)});cv.toBlob(function(b){dl(b,"whatsapp-qr.png")},"image/png")}
+function dlSvg(){var q=modules();if(!q)return;var qz=4,s=q.n+qz*2,p=q.d.map(function(a){return "M"+(a[1]+qz)+" "+(a[0]+qz)+"h1v1h-1z"}).join("");var svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+s+' '+s+'" shape-rendering="crispEdges"><rect width="'+s+'" height="'+s+'" fill="'+$("bg").value+'"/><path d="'+p+'" fill="'+$("fg").value+'"/></svg>';dl(new Blob([svg],{type:"image/svg+xml"}),"whatsapp-qr.svg")}
+function save(){try{localStorage.setItem("wlq",JSON.stringify({cc:$("cc").value,num:$("num").value,name:$("bname").value,fg:$("fg").value,bg:$("bg").value}))}catch(e){}}
+function restore(){try{var o=JSON.parse(localStorage.getItem("wlq")||"null");if(!o)return;$("cc").value=o.cc||$("cc").value;$("num").value=o.num||"";$("bname").value=o.name||"";$("fg").value=o.fg||"#000000";$("bg").value=o.bg||"#ffffff";renderMsgs()}catch(e){}}
+function rpc(n,a){var C=window.WLQ_CONFIG||{};return fetch(C.SUPABASE_URL+"/rest/v1/rpc/"+n,{method:"POST",headers:{"Content-Type":"application/json",apikey:C.ANON_KEY,Authorization:"Bearer "+C.ANON_KEY},body:JSON.stringify(a)}).then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error(j.message||"error");return j})})}
+function makeShort(){var e=$("serr"),C=window.WLQ_CONFIG||{};e.textContent="";
+  if(!C.SUPABASE_URL||C.SUPABASE_URL.indexOf("XXXX")>-1){e.textContent="الخدمة غير مفعّلة بعد: عدّل ملف config.js.";return}
+  var code=$("ccode").value.trim().toLowerCase();$("short").textContent="جارٍ الإنشاء…";
+  rpc("create_link",{p_url:$("link").textContent,p_code:code||null}).then(function(r){
+    var base=location.href.split("#")[0].replace(/[^\/]*$/,"");
+    $("slink").textContent=base+"go.html?c="+r.code;
+    $("sstats").href=base+"stats.html#c="+r.code+"&t="+r.token;$("shortbox").style.display="block";
+    try{var a=JSON.parse(localStorage.getItem("wlq_links")||"[]");a.push({c:r.code,t:r.token});localStorage.setItem("wlq_links",JSON.stringify(a))}catch(x){}
+  }).catch(function(x){var m=String(x.message||"");
+    e.textContent=m.indexOf("code_taken")>-1?"هذا الاسم مستخدم، جرّب اسماً آخر.":m.indexOf("invalid_code")>-1?"الاسم: حروف إنجليزية صغيرة وأرقام وشرطة، من 3 إلى 30.":"تعذّر الإنشاء، حاول مرة أخرى."
+  }).then(function(){$("short").textContent="رابط قصير + تتبع"})}
+function copyShort(){var b=$("scopy"),u=$("slink").textContent;function ok(){b.textContent="تم النسخ";setTimeout(function(){b.textContent="نسخ القصير"},1800)}
+  try{navigator.clipboard.writeText(u).then(ok,function(){b.textContent="انسخه يدوياً"})}catch(x){b.textContent="انسخه يدوياً"}}
+function copy(){
+  var url=$("link").textContent, b=$("copy");
+  function ok(){b.textContent="تم النسخ";setTimeout(function(){b.textContent="نسخ الرابط"},1800)}
+  function fb(){
+    var r=document.createRange(); r.selectNodeContents($("link"));
+    var s=window.getSelection(); s.removeAllRanges(); s.addRange(r);
+    try{document.execCommand("copy");ok()}catch(e){b.textContent="حدد الرابط وانسخه"}
+  }
+  try{
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(ok,fb)}else{fb()}
+  }catch(e){fb()}
+}
+$("text").addEventListener("input",function(){tpl=null;updatePv()});
+$("bname").addEventListener("input",function(){renderMsgs();applyTpl()});
+$("fg").addEventListener("input",regen);$("bg").addEventListener("input",regen);
+$("short").onclick=makeShort;$("scopy").onclick=copyShort;$("dlpng").onclick=dlPng;$("dlsvg").onclick=dlSvg;
+$("go").onclick=build;
+$("copy").onclick=copy;
+var SITE_NAME="طلبات for you";
+$("brand").textContent=SITE_NAME;
+$("qrbrand").textContent="أُنشئ عبر "+SITE_NAME;
+function shareText(text,url){
+  if(navigator.share){navigator.share({text:text,url:url}).catch(function(){})}
+  else{window.open("https://wa.me/?text="+encodeURIComponent(text+" "+url),"_blank")}
+}
+$("share").onclick=function(){shareText("رابط واتساب جاهز:",$("link").textContent)};
+$("sharesite").onclick=function(){shareText("أداة مجانية تصنع رابط واتساب وكود QR برسائل جاهزة:",location.href)};
+renderTabs(); renderMsgs(); restore();
+</script>
+</body>
+</html>
